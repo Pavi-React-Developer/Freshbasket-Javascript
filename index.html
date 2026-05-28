@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Fresh Basket</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<link href="https://googleapis.com" rel="stylesheet">
+	<script src="jquery.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-left">
+            <div class="logo" onclick="showSection('home')">FreshBasket</div>
+            <ul class="nav-links">
+                <li onclick="showSection('home')">Home</li>
+                <li onclick="showSection('contact')">Contact</li>
+            </ul>
+        </div>
+        <div class="nav-right">
+            <div class="icon-group">
+                <button class="reward-btn" onclick="showSection('rewardSec')"><i class="fa-solid fa-gift" style="color: #E74C3C; font-size: 22px;"></i></button>
+                <span onclick="showSection('wishlist')"> <i class="fa-solid fa-heart" style="color: #E74C3C; font-size: 22px;"></i><small id="wCount" class="badge">0</small></span>
+                <span onclick="showSection('cart')">🛒 <small id="cCount" class="badge">0</small></span>
+            </div>
+            <div id="userProfile" class="user-info" style="display:none;">
+                <span id="uName" onclick="openDrawer()">User</span>
+                <button onclick="logout()" style="background:none; border:none; color:white; cursor:pointer; font-size:11px; text-decoration:underline;">Logout</button>
+            </div>
+            <div class="log" style="display: flex;">
+            <button id="loginNavBtn" class="btn-white" onclick="showSection('login')">Login</button>
+            <button id="loginNavBtn1" class="btn-white" onclick="showSection('signup')">Signup</button>
+            </div>
+        </div>
+    </nav>
+
+
+    <!-- Dynamic Category Filter -->
+    <div class="filt">
+        <!-- categorie filter -->
+        <div id="filterBar" class="category-bar">
+            <button class="cat-btn active-cat" onclick="filterProducts('All', this)">All Items</button>
+            <button class="cat-btn" onclick="filterProducts('Dairy', this)">Dairy</button>
+            <button class="cat-btn" onclick="filterProducts('Snacks', this)">Snacks</button>
+            <button class="cat-btn" onclick="filterProducts('Beverages', this)">Beverages</button>
+            <button class="cat-btn" onclick="filterProducts('Spices', this)">Spices</button>
+            <button class="cat-btn" onclick="filterProducts('Pulses', this)">Pulses</button>
+            <button class="cat-btn" onclick="filterProducts('Vegetables', this)">Vegetables</button>
+            <button class="cat-btn" onclick="filterProducts('Fruits', this)">Fruits</button>
+        </div>
+        <!-- Live Search Bar -->
+        <div class="search-container" id="searchArea">
+            <div class="search-wrapper">
+                <input type="text" id="liveSearch" placeholder="Search for dairy, snacks, drinks..." oninput="handleSearch()">
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Recently Viewed Section -->
+    <div id="recentSection" class="recent-section">
+        <p class="recent-header">Recently Viewed Items</p>
+        <div id="recentList" class="recent-list"></div>
+    </div>
+
+    <div class="container">
+        <!-- Home -->
+        <section id="home" class="section active">
+            <h2 style="margin-bottom:20px;">Top Fresh Items</h2>
+            <div id="productDisplay" class="grid"></div>
+        </section>
+
+        <!-- product detail -->
+        <section id="productDetail" class="section">
+    <div class="form-card" style="max-width: 800px; text-align: left;">
+        <button onclick="showSection('home')" style="cursor:pointer; margin-bottom:10px;">← Back</button>
+        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <img id="detImg" src="" style="width: 250px; border-radius: 10px;">
+            <div style="flex: 1;">
+                <h2 id="detName"></h2>
+                <p id="detPrice" style="color: var(--primary); font-size: 20px; font-weight: bold;"></p>
+                <p id="detWeight" style="color: #666;"></p>
+                <button class="btn-add" onclick="alert('Added!')">Add to Cart</button>
+                <!-- Inside <section id="productDetail"> -->
+<div id="reviewInputArea" style="margin-top:20px;">
+    <h4>Rate this Product</h4>
+    <div id="starInput" style="font-size:20px; color:#ccc; cursor:pointer;">
+        <span onclick="setRating(1)">★</span><span onclick="setRating(2)">★</span>
+        <span onclick="setRating(3)">★</span><span onclick="setRating(4)">★</span>
+        <span onclick="setRating(5)">★</span>
+    </div>
+    <textarea id="reviewText" placeholder="Write a review..." style="width:100%; margin-top:10px;"></textarea>
+    <button class="btn-add" onclick="submitReview()" style="width:auto; padding:5px 15px;">Post Review</button>
+</div>
+
+            </div>
+        </div>
+        <hr style="margin: 20px 0; opacity: 0.1;">
+        <h3>Ratings & Reviews</h3>
+        <div id="commentsList" style="margin-top: 15px;"></div>
+    </div>
+</section>
+        <!-- right side drawyer for user name clicking -->
+        <!-- Right Side Drawer -->
+<div id="userDrawer" class="drawer">
+    <div class="drawer-header">
+        <span id="drawerUserName">User Name</span>
+        <button onclick="closeDrawer()" class="close-btn">&times;</button>
+    </div>
+    <div class="drawer-content">
+        <h4  onclick="showSection('cart')"><i class="fa-solid fa-cart-shopping"></i> My Cart</h4>
+        <div id="drawerCartItems">No items in cart.</div>
+        <!-- <hr>
+        <h4  onclick="showSection('reviewSection')"><i class="fa-solid fa-star"></i> My Reviews</h4>
+        <div id="drawerReviews">No reviews yet.</div> -->
+        <hr>
+        <h4  onclick="showSection('myOrders')"><i class="fa-solid fa-box"></i> My Orders</h4>
+        <div id="userOrders" style="font-size: 12px; color: #888;"></div>
+
+    </div>
+</div>
+<div id="drawerOverlay" class="overlay" onclick="closeDrawer()"></div>
+
+        
+
+        <!-- Login / Signup -->
+        <section id="login" class="section">
+            <div id="authBox" class="form-card">
+                <!-- Login Form -->
+                <div id="loginForm">
+                    <h2>User Login</h2>
+                    <input type="email" id="lEmail" placeholder="Email">
+                    <input type="password" id="lPass" placeholder="Password">
+                    <button class="btn-add" onclick="sendOTP()">Get OTP</button>
+                    <div id="otpArea" style="display:none; margin-top:10px;">
+                        <input type="text" id="inOTP" placeholder="Enter OTP from Alert">
+                        <button class="btn-add" onclick="verifyLogin()">Verify & Login</button>
+                    </div>
+                    <p class="toggle-link" onclick="showSection('signup')">Don't have an account? <b>Signup</b></p>
+                    <hr style="margin:20px 0; opacity:0.2;">
+                    <p onclick="adminAccess()" style="font-size:12px; cursor:pointer; color:var(--dark);">Admin Login Only</p>
+                </div>
+            </div>
+</section>
+                <!-- Signup Form -->
+                <section id="signup" class="section">
+            <div id="authBox" class="form-card">
+                <div id="signupForm" style="display:block;">
+                    <h2>Create Account</h2>
+                    <input type="text" id="rName" placeholder="Full Name">
+                    <input type="email" id="rEmail" placeholder="Email Address">
+                    <input type="password" id="rPass" placeholder="Password">
+                    <button class="btn-add" onclick="registerUser()">Sign Up</button>
+                    <p class="toggle-link" onclick="showSection('login')">Already have an account? <b>Login</b></p>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Admin Panel -->
+        <section id="admin" class="section">
+            <div class="admin-card">
+                <h2>Admin Panel - Inventory</h2>
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-top:20px;">
+                    <input type="text" id="pName" placeholder="Product Name">
+                    <select id="pCategory">
+                        <option value="Dairy">Dairy</option>
+                        <option value="Snacks">Snacks</option>
+                        <option value="Drinks">Drinks</option>
+                        <option value="Spices">Spices</option>
+                        <option value="Pulses">Pulses</option>
+                    </select>
+                    <input type="text" id="pWeight" placeholder="Weight (e.g. 1kg)">
+                    <input type="number" id="pQty" placeholder="Quantity/Stock">
+                    <input type="number" id="pPrice" placeholder="Price (₹)">
+                    <input type="text" id="pImg" placeholder="Image URL">
+                    <button class="btn-add" onclick="addNewProduct()">Add Product</button>
+                </div>
+            </div>
+            <div class="admin-card">
+                <h3>Live Stock List</h3>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Image</th><th>Name</th><th>Weight</th><th>Stock</th><th>Price</th><th>Categogy</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTable"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="admin-card">
+    <h3>Customer Orders</h3>
+    <div style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Items</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="adminOrderTable"></tbody>
+        </table>
+    </div>
+</div>
+
+        </section>
+
+        <!-- Wishlist Section -->
+<section id="wishlist" class="section">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2>My Wishlist ❤️</h2>
+        <button onclick="showSection('home')" class="btn-white" style="color:var(--primary); border:1px solid var(--primary);">Back to Shop</button>
+    </div>
+    <div id="wishlistDisplay" class="grid">
+        <!-- Wishlist items will appear here -->
+    </div>
+</section>
+
+<!-- Cart Section -->
+<section id="cart" class="section">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>My Shopping Cart 🛒</h2>
+        <button onclick="showSection('home')" class="btn-white" style="color:var(--primary); border:1px solid var(--primary);">Back to Shop</button>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; align-items: start;">
+        <!-- Cart Items List -->
+        <div id="cartDisplay" class="grid" style="grid-template-columns: 1fr;">
+            <!-- Cart items will be rendered here -->
+        </div>
+
+        <!-- Order Summary & Address -->
+        <div class="admin-card">
+            <h3>Order Summary</h3>
+            <hr style="margin: 10px 0; opacity: 0.1;">
+            <div style="display: flex; justify-content: space-between; margin: 10px 0; font-weight: bold;">
+                <span>Total Amount:</span>
+                <span id="cartTotal" style="color: var(--primary);">₹0</span>
+            </div>
+            
+            <h4 style="margin-top: 20px;">Delivery Address</h4>
+            <textarea id="deliveryAddress" placeholder="Enter your full delivery address..." style="width:100%; height:80px; padding:10px; margin-top:10px; border-radius:8px; border:1px solid #ddd;"></textarea>
+            
+            <button class="btn-add" style="width: 100%; margin-top: 20px;" onclick="placeOrder()">Place Order Now</button>
+        </div>
+    </div>
+</section>
+
+<!-- Checkout / Order Summary Section -->
+<section id="checkout" class="section">
+    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
+        <button onclick="showSection('cart')" class="btn-white" style="border:1px solid var(--primary);"><i class="fa-solid fa-arrow-left"></i> Back to Cart</button>
+        <h2>Final Checkout</h2>
+    </div>
+
+    <div class="form-card" style="max-width: 600px; text-align: left; margin: 0 auto;">
+        <h3 style="border-bottom: 1px solid #eee; padding-bottom: 10px;">Order Summary</h3>
+        
+        <div style="padding: 15px 0; line-height: 2;">
+            <div style="display: flex; justify-content: space-between;">
+                <span>Items Subtotal:</span>
+                <span id="summaryBase">₹0</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; color: #666;">
+                <span>GST (12%):</span>
+                <span id="summaryGST">₹0</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; color: #666;">
+                <span>Delivery Fee:</span>
+                <span>₹200</span>
+            </div>
+            <div id="couponRow" style="display: flex; justify-content: space-between; color: var(--primary); font-weight: bold; display: none;">
+                <span>Coupon Discount:</span>
+                <span id="summaryDiscount">-₹0</span>
+            </div>
+            <hr style="opacity: 0.1;">
+            <div style="display: flex; justify-content: space-between; font-size: 20px; font-weight: bold; color: var(--dark);">
+                <span>Grand Total:</span>
+                <span id="summaryGrandTotal">₹0</span>
+            </div>
+        </div>
+
+        <h4 style="margin-top: 15px;">Shipping Address</h4>
+        <p id="displayAddress" style="background: #f9f9f9; padding: 10px; border-radius: 5px; font-size: 13px; color: #555; border: 1px solid #eee;"></p>
+
+        <button class="btn-add" style="width: 100%; margin-top: 20px; font-size: 18px;" onclick="confirmFinalOrder()">Confirm & Pay</button>
+    </div>
+</section>
+<section id="myOrders" class="section">
+    <div class="back" style="display: flex; justify-content: space-between; padding: 20px 10px;"><h2>My Orders 📦</h2>
+    <button onclick="showSection('home')" class="btn-white" style="color:var(--primary); border:1px solid var(--primary);">Back to Shop</button></div>
+    <div id="userOrders"></div>
+</section>
+    <!-- Reward Sidebar -->
+    <section id="rewardSec" class="section">
+        <div class="rew" style="display: flex; justify-content: space-between; padding: 20px 10px;">
+        <h3>Lucky Reward</h3>
+        <button onclick="showSection('home')" class="btn-white" style="color:var(--primary); border:1px solid var(--primary);">Back to Shop</button></div><div class="scratch">
+        <div class="scratch-container">
+            <div class="reward-hidden">
+                <h2 id="amt-text">$0</h2>
+            </div>
+            <canvas id="scratch-canvas" width="170" height="110"></canvas>
+        </div>
+        </div>
+        <div id="coupon-details" class="coupon-card">
+            <p>YOUR PROMO CODE:</p>
+            <b id="code-text" onclick="copyCode()">---</b>
+            <div id="timer-box">Expires in: <span id="clock">24:00:00</span></div>
+        </div>
+        <div class="info-text" id="status-msg">
+            Scratch the card above <br> to win a discount!
+        </div>
+    </section>
+
+    </div>
+<!-- footer section -->
+<footer class="footer">
+    <div class="footer-container">
+
+        <div class="footer-col">
+            <h3>FreshBasket</h3>
+            <p>Your daily needs delivered fresh & fast.</p>
+        </div>
+
+        <div class="footer-col">
+            <h4>Quick Links</h4>
+            <ul>
+                <li onclick="showSection('home')">Home</li>
+                <li onclick="showSection('wishlist')">Wishlist</li>
+                <li onclick="showSection('cart')">Cart</li>
+                <li onclick="showSection('contact')">Contact</li>
+            </ul>
+        </div>
+
+        <div class="footer-col">
+            <h4>Contact</h4>
+            <p>Email: support@freshbasket.com</p>
+            <p>Phone: +91 98765 43210</p>
+        </div>
+
+        <div class="footer-col">
+            <h4>Follow Us</h4>
+            <div class="social-icons">
+                <i class="fa-brands fa-facebook"></i>
+                <i class="fa-brands fa-instagram"></i>
+                <i class="fa-brands fa-twitter"></i>
+            </div>
+        </div>
+
+    </div>
+</footer>
+ 
+ <script src="script.js"></script>   
+</body>
+</html>
